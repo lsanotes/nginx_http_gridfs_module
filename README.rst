@@ -5,17 +5,16 @@ nginx-gridfs
     Chris Triolo,
     and everyone listed in the Credits section below
 
-Note from Mike: I'm no longer actively maintaining this project. If you're
-interested in becoming the new maintainer please shoot me an email.
-
 About
 =====
 **nginx-gridfs** is an `Nginx <http://nginx.net/>`_ module to serve
 content directly from `MongoDB <http://www.mongodb.org/>`_'s `GridFS
 <http://www.mongodb.org/display/DOCS/GridFS>`_.
+Added range support
 
 Version
 ============
+
 The minor version will be incremented with each release until
 a stable 1.0 is reached. To check out a particular version::
 

@@ -232,7 +232,7 @@ static char* ngx_http_gridfs(ngx_conf_t* cf, ngx_command_t* command, void* void_
 
     /* Parse the parameters */
     for (i = 2; i < cf->args->nelts; i++) {
-        if (ngx_strncmp(value[i].data, "root_collection=", 16) == 0) {
+        if (ngx_strncmp(value[i].data, "root_collection=", 16) == 0) { 
             gridfs_loc_conf->root_collection.data = (u_char *) &value[i].data[16];
             gridfs_loc_conf->root_collection.len = ngx_strlen(&value[i].data[16]);
             continue;
@@ -254,7 +254,7 @@ static char* ngx_http_gridfs(ngx_conf_t* cf, ngx_command_t* command, void* void_
             continue;
         }
 
-        if (ngx_strncmp(value[i].data, "type=", 5) == 0) {
+        if (ngx_strncmp(value[i].data, "type=", 5) == 0) { 
             type = (ngx_str_t) ngx_string(&value[i].data[5]);
 
             /* Currently only support for "objectid", "string", and "int" */
@@ -275,7 +275,7 @@ static char* ngx_http_gridfs(ngx_conf_t* cf, ngx_command_t* command, void* void_
             continue;
         }
 
-        if (ngx_strncmp(value[i].data, "user=", 5) == 0) {
+        if (ngx_strncmp(value[i].data, "user=", 5) == 0) { 
             gridfs_loc_conf->user.data = (u_char *) &value[i].data[5];
             gridfs_loc_conf->user.len = ngx_strlen(&value[i].data[5]);
             continue;
@@ -431,14 +431,14 @@ static ngx_int_t ngx_http_mongo_authenticate(ngx_log_t *log, ngx_http_gridfs_loc
 
     // Authenticate
     if (gridfs_loc_conf->user.data != NULL && gridfs_loc_conf->pass.data != NULL) {
-        if (mongo_cmd_authenticate( &mongo_conn->conn,
-				    (const char*)gridfs_loc_conf->db.data,
-				    (const char*)gridfs_loc_conf->user.data,
+        if (mongo_cmd_authenticate( &mongo_conn->conn, 
+				    (const char*)gridfs_loc_conf->db.data, 
+				    (const char*)gridfs_loc_conf->user.data, 
 				    (const char*)gridfs_loc_conf->pass.data )
 	    != MONGO_OK) {
             ngx_log_error(NGX_LOG_ERR, log, 0,
-                          "Invalid mongo user/pass: %s/%s",
-                          gridfs_loc_conf->user.data,
+                          "Invalid mongo user/pass: %s/%s", 
+                          gridfs_loc_conf->user.data, 
                           gridfs_loc_conf->pass.data);
             return NGX_ERROR;
         }
@@ -490,18 +490,18 @@ static ngx_int_t ngx_http_mongo_add_connection(ngx_cycle_t* cycle, ngx_http_grid
 
     if ( gridfs_loc_conf->mongods->nelts == 1 ) {
         ngx_cpystrn( host, mongods[0].host.data, mongods[0].host.len + 1 );
-        status = mongo_client( &mongo_conn->conn, (const char*)host, mongods[0].port );
+        status = mongo_connect( &mongo_conn->conn, (const char*)host, mongods[0].port );
     } else if ( gridfs_loc_conf->mongods->nelts >= 2 && gridfs_loc_conf->mongods->nelts < 9 ) {
 
         /* Initiate replica set connection. */
-        mongo_replica_set_init( &mongo_conn->conn, (const char *)gridfs_loc_conf->replset.data );
+        mongo_replset_init( &mongo_conn->conn, (const char *)gridfs_loc_conf->replset.data );
 
         /* Add replica set seeds. */
         for( i=0; i<gridfs_loc_conf->mongods->nelts; ++i ) {
             ngx_cpystrn( host, mongods[i].host.data, mongods[i].host.len + 1 );
-            mongo_replica_set_add_seed( &mongo_conn->conn, (const char *)host, mongods[i].port );
+            mongo_replset_add_seed( &mongo_conn->conn, (const char *)host, mongods[i].port );
         }
-        status = mongo_replica_set_client( &mongo_conn->conn );
+        status = mongo_replset_connect( &mongo_conn->conn );
     } else {
         ngx_log_error(NGX_LOG_ERR, cycle->log, 0,
                           "Mongo Nginx Exception: Too many strings provided in 'mongo' directive.");
@@ -557,10 +557,10 @@ static ngx_int_t ngx_http_gridfs_init_worker(ngx_cycle_t* cycle) {
 
     for (i = 0; i < gridfs_main_conf->loc_confs.nelts; i++) {
         if (ngx_http_mongo_add_connection(cycle, gridfs_loc_confs[i]) == NGX_ERROR) {
-            return NGX_OK;
+            return NGX_ERROR;
         }
         if (ngx_http_mongo_authenticate(cycle->log, gridfs_loc_confs[i]) == NGX_ERROR) {
-            return NGX_OK;
+            return NGX_ERROR;
         }
     }
 
@@ -570,7 +570,7 @@ static ngx_int_t ngx_http_gridfs_init_worker(ngx_cycle_t* cycle) {
 static ngx_int_t ngx_http_mongo_reconnect(ngx_log_t *log, ngx_http_mongo_connection_t *mongo_conn) {
     volatile int status = MONGO_CONN_FAIL;
 
-    if (&mongo_conn->conn.connected) {
+    if (&mongo_conn->conn.connected) { 
         mongo_disconnect(&mongo_conn->conn);
         ngx_msleep(MONGO_RECONNECT_WAITTIME);
         status = mongo_reconnect(&mongo_conn->conn);
@@ -604,7 +604,7 @@ static ngx_int_t ngx_http_mongo_reconnect(ngx_log_t *log, ngx_http_mongo_connect
                           "Mongo Exception: Unknown Error");
             return NGX_ERROR;
     }
-
+    
     return NGX_OK;
 }
 
@@ -615,19 +615,19 @@ static ngx_int_t ngx_http_mongo_reauth(ngx_log_t *log, ngx_http_mongo_connection
     auths = mongo_conn->auths->elts;
 
     for (i = 0; i < mongo_conn->auths->nelts; i++) {
-        status = mongo_cmd_authenticate( &mongo_conn->conn,
-					 (const char*)auths[i].db.data,
-					 (const char*)auths[i].user.data,
+        status = mongo_cmd_authenticate( &mongo_conn->conn, 
+					 (const char*)auths[i].db.data, 
+					 (const char*)auths[i].user.data, 
 					 (const char*)auths[i].pass.data );
         if (status != MONGO_OK) {
             ngx_log_error(NGX_LOG_ERR, log, 0,
-                          "Invalid mongo user/pass: %s/%s, during reauth",
-                          auths[i].user.data,
-                          auths[i].pass.data);
+                          "Invalid mongo user/pass: %s/%s, during reauth", 
+                          auths[i].user.data, 
+                          auths[i].pass.data);   
             return NGX_ERROR;
         }
     }
-
+    
     return NGX_OK;
 }
 
@@ -1186,6 +1186,7 @@ static ngx_int_t ngx_http_gridfs_handler(ngx_http_request_t* request) {
 
     return rc;
 }
+
 
 static void ngx_http_gridfs_cleanup(void* data) {
     ngx_http_gridfs_cleanup_t* gridfs_clndata;
