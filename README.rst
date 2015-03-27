@@ -10,7 +10,7 @@ About
 **nginx-gridfs** is an `Nginx <http://nginx.net/>`_ module to serve
 content directly from `MongoDB <http://www.mongodb.org/>`_'s `GridFS
 <http://www.mongodb.org/display/DOCS/GridFS>`_.
-Added range support
+Added range support.
 
 Version
 ============
