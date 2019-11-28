@@ -134,7 +134,6 @@ file in gridfs with _id *123...* for any request to */gridfs/123...*
 Known Issues / TODO / Things You Should Hack On
 ===============================================
 
-* HTTP range support for partial downloads
 * Better error handling / logging
 
 Credits
@@ -146,6 +145,7 @@ Credits
 * Paul Dlug (pdlug) - mongo authentication
 * Todd Zusman (toddzinc) - gzip handling
 * Kyle Banker (banker) - replica set support
+* Liu Pei Pei (lsanotes) - convert to dynamic module
 
 License
 =======
